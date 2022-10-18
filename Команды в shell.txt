@@ -1,0 +1,65 @@
+>>> from ninoni.models import *
+>>> User.objects.create_user('Pito') 
+<User: Pito>
+>>> User.objects.create_user('Leone') 
+<User: Leone>
+>>> User.objects.create_user('Mark')  
+<User: Mark>
+>>> User.objects.all()
+<QuerySet [<User: Pito>, <User: Leone>, <User: Mark>]>
+>>> users = User.objects.all()
+>>> cap = Author(user_id=1,rating = 0)  
+>>> cap.save                           
+<bound method Model.save of Author (user.name='Pito', rating='0')>
+>>> cap.save()
+>>> cap = Author(user_id=3,rating = 0)
+>>> cap.save()    
+>>> cap = Category(1, 'Новости')   
+>>> cap.save()
+>>> cap = Category(2, 'IT')        
+>>> cap.save()              
+>>> cap = Category(3, 'Юмор') 
+>>> cap.save()                
+>>> cap = Category(4, 'Слухи') 
+>>> cap.save()
+>>> posts = Post.objects.all()
+>>> article_authors = Author.objects.all()
+>>> post = Post.objects.create(author=article_authors[0], title="Первая статья", text="Это первая статья")
+>>> post.category.add(Category.objects.get(id=3), Category.objects.get(id=1))
+>>> post = Post.objects.create(author=article_authors[1], title="Вторая статья", text="Это вторая статья") 
+>>> post.category.add(Category.objects.get(id=2), Category.objects.get(id=3))
+>>> news = Post.objects.create(author=article_authors[1], title="Первая новость",post_type=Post.NEWS, text="Это первая новость") 
+>>> news.category.add(Category.objects.get(id=4), Category.objects.get(id=1))
+>>> Comment.objects.create(post=posts.get(id=1),user=users.get(id=1), text= 'В раздумьях')                          
+<Comment: Comment object (1)>
+>>> Comment.objects.create(post=posts.get(id=2),user=users.get(id=2), text= 'Осознает истину') 
+<Comment: Comment object (2)>
+>>> Comment.objects.create(post=posts.get(id=3),user=users.get(id=1), text= 'В этом есть смысл') 
+<Comment: Comment object (3)>
+>>> Comment.objects.create(post=posts.get(id=1),user=users.get(id=3), text= 'Просто интересно')  
+<Comment: Comment object (4)>
+>>> Comment.objects.get(id=1).like()
+>>> Comment.objects.get(id=3).like() 
+>>> Comment.objects.get(id=1).like() 
+>>> Comment.objects.get(id=1).like()
+>>> Post.objects.get(id=1).dislike() 
+>>> Comment.objects.get(id=1).rating  
+3
+>>> Comment.objects.get(id=3).rating 
+1
+>>> Post.objects.get(id=1).rating   
+-1
+>>> s1 = Author.objects.get(id=1) 
+>>> s1.update_rating() 
+===== Pito: обновляем рейтинг автора =====
+Рейтинг постов = -1
+Рейтинг комментариевв = 4
+Рейтинг = 3 * -1 + 4 = 1
+>>> s2 = Author.objects.get(id=2)
+>>> s2.update_rating() 
+===== Mark: обновляем рейтинг автора =====
+Рейтинг постов = 0
+Рейтинг комментариевв = 0
+Рейтинг = 3 * 0 + 0 = 0
+>>> Post.objects.all().order_by('-rating')[0].comments.values('date_time','user','rating', 'text')                   
+<QuerySet [{'date_time': datetime.datetime(2022, 10, 18, 1, 28, 58, 488310, tzinfo=datetime.timezone.utc), 'user': 2, 'rating': 0, 'text': 'Осознает истину'}]>
